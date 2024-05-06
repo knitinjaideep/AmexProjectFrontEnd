@@ -40,7 +40,8 @@ function StudentDrawerForm({showDrawer, setShowDrawer, fetchStudents, selectedSt
     };
 
     const onFinishFailed = errorInfo => {
-        alert(JSON.stringify(errorInfo, null, 2));
+        const errorFields = errorInfo.errorFields.map(field => field.name.join(", "));
+        alert(`Please fill in the following fields: ${errorFields.join(", ")}`);
     };
     const [ form ] = Form.useForm(); 
     // Update the form fields when selectedStudent changes

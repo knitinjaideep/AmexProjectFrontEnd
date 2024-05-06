@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { deleteStudent, getAllStudents } from './client';
 import { Table, Empty, Button, Radio, Popconfirm } from "antd"; 
 import StudentDrawerForm from './StudentDrawerForm';
-import {successNotification} from "./Notification";
+import {errorNotification, successNotification} from "./Notification";
 
 function App() {
   const [students, setStudents] = useState([]);
@@ -12,9 +12,12 @@ function App() {
 
   const removeStudent = (studentId, callback) => {
     deleteStudent(studentId).then(() => {
-        successNotification( "Student deleted", `Student with ${studentId} was deleted`);
+        successNotification( "Student deleted", `Student with ID ${studentId} was deleted`);
         callback();
-    });
+    }).catch(err => {
+                errorNotification(`Error adding student ${studentId}`)
+                console.log("The error is ", err)
+            })
 }
 
   const editStudent = (student) => {
