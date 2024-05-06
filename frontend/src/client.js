@@ -11,7 +11,7 @@ const checkStatus = response => {
 }
 
 export const addNewStudent = (student) =>
-    fetch("/v1/students", {
+    fetch("v1/students", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -22,3 +22,13 @@ export const addNewStudent = (student) =>
 export const getAllStudents = () =>
     fetch("v1/students")
         .then(checkStatus);
+
+export const deleteStudent = studentId => fetch(`v1/students/${studentId}`, {
+    method:"DELETE"}).then(checkStatus)
+
+export const updateStudent = (studentId, studentDetails) => fetch(`v1/students/${studentId}`, {
+    method: "PUT",
+    headers: {
+            "Content-Type": "application/json",
+    },
+    body: JSON.stringify(studentDetails)}).then(checkStatus)

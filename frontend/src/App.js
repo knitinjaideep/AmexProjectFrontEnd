@@ -1,12 +1,30 @@
 import './App.css';
 import { useState, useEffect } from 'react';
-import { getAllStudents } from './client';
-import { Table, Empty, Button } from "antd"; 
+import { deleteStudent, getAllStudents } from './client';
+import { Table, Empty, Button, Radio, Popconfirm } from "antd"; 
 import StudentDrawerForm from './StudentDrawerForm';
+import {successNotification} from "./Notification";
+
 function App() {
   const [students, setStudents] = useState([]);
   const [showDrawer, setShowDrawer] = useState(false);
-  const columns = [
+  const [selectedStudent, setSelectedStudent] = useState(null);
+
+  const removeStudent = (studentId, callback) => {
+    deleteStudent(studentId).then(() => {
+        successNotification( "Student deleted", `Student with ${studentId} was deleted`);
+        callback();
+    });
+}
+
+  const editStudent = (student) => {
+    // Set the selected student for editing
+    setSelectedStudent(student);
+    // Open the drawer
+    setShowDrawer(true);
+  };
+
+  const columns = fetchStudents => [
     {
       title: "Student Id",
       dataIndex: "studentId",
@@ -32,6 +50,22 @@ function App() {
       dataIndex: "joining_date",
       key: "joining_date",
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (text, student) =>
+        <Radio.Group>
+          <Popconfirm
+              placement='topRight'
+              title={`Are you sure to delete ${student.name}`}
+              onConfirm={() => removeStudent(student.studentId, fetchStudents)}
+              okText='Yes'
+              cancelText='No'>
+              <Radio.Button value="small">Delete</Radio.Button>
+          </Popconfirm>
+          <Radio.Button onClick={() => editStudent(student)} value="small">Edit</Radio.Button>
+        </Radio.Group>
+    } 
   ]
 
   const fetchStudents = () => 
@@ -56,11 +90,14 @@ function App() {
     <StudentDrawerForm
       showDrawer={showDrawer}
       setShowDrawer={setShowDrawer}
+      fetchStudents={fetchStudents}
+      selectedStudent={selectedStudent} 
+      setSelectedStudent={setSelectedStudent}
     >
     </StudentDrawerForm>
     <Table 
       dataSource={students}
-      columns={columns}
+      columns={columns(fetchStudents)}
       bordered 
       title={()=>
       <Button
@@ -75,9 +112,7 @@ function App() {
   }
 
   return (
-    <div 
-      style={{ margin:'0 auto', maxWidth: '800px', marginTop: '100px', padding: 24, minHeight: 360 }}
-    >
+    <div style={{ margin:'0 auto', maxWidth: '1800px', marginTop: '100px', padding: 24, minHeight: 360 }}>
       {renderStudents()}
     </div>
   )

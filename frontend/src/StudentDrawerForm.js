@@ -1,26 +1,61 @@
 import {Drawer, Input, Col, Select, Form, Row, Button} from 'antd';
-import { addNewStudent } from './client';
+import { updateStudent, addNewStudent } from './client';
+import { successNotification, errorNotification } from './Notification';
+import { useEffect } from 'react';
+
 const {Option} = Select;
 
-function StudentDrawerForm({showDrawer, setShowDrawer}) {
-    const onCLose = () => setShowDrawer(false);
+function StudentDrawerForm({showDrawer, setShowDrawer, fetchStudents, selectedStudent, setSelectedStudent}) {
+    const onCLose = () => 
+    {
+        setShowDrawer(false);
+        setSelectedStudent(null);
+    }
 
     const onFinish = student => {
         console.log(JSON.stringify(student, null, 2))
+        if (selectedStudent) {
+            updateStudent(selectedStudent.studentId, student)
+            .then(() => {
+                onCLose();
+                successNotification("Student successfully updated", `${student.name} was updated`);
+                fetchStudents();
+            })
+            .catch(err => {
+            errorNotification(`Error updating student ${student.name}`);
+            console.log("The error is ", err);
+            });
+        }
+        else {
         addNewStudent(student)
             .then(() => {
-                console.log("Student added")
+                onCLose();
+                successNotification("Student successfully added", `${student.name} was added into the system`);
+                fetchStudents();
             }).catch(err => {
+                errorNotification(`Error adding student ${student.name}`)
                 console.log("The error is ", err)
             })
+        }
     };
 
     const onFinishFailed = errorInfo => {
         alert(JSON.stringify(errorInfo, null, 2));
     };
+    const [ form ] = Form.useForm(); 
+    // Update the form fields when selectedStudent changes
+    useEffect(() => {
+        form.setFieldsValue({
+        name: selectedStudent?.name,
+        date_of_birth: selectedStudent?.date_of_birth,
+        joining_date: selectedStudent?.joining_date,
+        class_name: selectedStudent?.class_name
+        });
+    }, [selectedStudent, form]);
+
 
     return <Drawer
-        title="Create new student"
+        title={selectedStudent ? "Edit Student": "Create new student"}
         width={720}
         onClose={onCLose}
         open={showDrawer}
@@ -37,10 +72,17 @@ function StudentDrawerForm({showDrawer, setShowDrawer}) {
             </div>
         }
     >
-        <Form layout="vertical"
+        <Form form={form} 
+              layout="vertical"
               onFinishFailed={onFinishFailed}
               onFinish={onFinish}
-              requiredMark>
+              requiredMark
+              initialValues={selectedStudent ? {
+                name: selectedStudent.name,
+                date_of_birth: selectedStudent.date_of_birth,
+                joining_date: selectedStudent.joining_date,
+                class_name: selectedStudent.class_name
+            } : null}>
             <Row gutter={16}>
                 <Col span={12}>
                     <Form.Item
@@ -57,16 +99,16 @@ function StudentDrawerForm({showDrawer, setShowDrawer}) {
                         label="Date of Birth"
                         rules={[{required: true, message: 'Please enter student date of birth'}]}
                     >
-                        <Input placeholder="Please enter student email"/>
+                        <Input placeholder="Please enter student date of birth" disabled={selectedStudent ? true : false} />
                     </Form.Item>
                 </Col>
                 <Col span={12}>
                     <Form.Item
                         name="joining_date"
                         label="Joining Date"
-                        rules={[{required: true, message: 'Please enter student joining'}]}
+                        rules={[{required: true, message: 'Please enter student joining date'}]}
                     >
-                        <Input placeholder="Please enter student email"/>
+                        <Input placeholder="Please enter student joining date" disabled={selectedStudent ? true : false} />
                     </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -91,7 +133,7 @@ function StudentDrawerForm({showDrawer, setShowDrawer}) {
                 <Col span={12}>
                     <Form.Item >
                         <Button type="primary" htmlType="submit">
-                            Submit
+                            {selectedStudent ? "Update" : "Add"} Student
                         </Button>
                     </Form.Item>
                 </Col>
