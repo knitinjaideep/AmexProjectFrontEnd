@@ -45,28 +45,22 @@ To set up the frontend application locally, follow these steps:
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-username/school-management-system-frontend.git
+    git clone https://github.com/knitinjaideep/AmexProjectFrontEnd.git
     ```
 
-2. Navigate to the project directory:
-
-    ```bash
-    cd school-management-system-frontend
-    ```
-
-3. Install dependencies:
+2. Install dependencies:
 
     ```bash
     npm install
     ```
 
-4. Start the development server:
+3. Start the development server:
 
     ```bash
     npm start
     ```
 
-5. Access the application at `http://localhost:3000`.
+4. Access the application at `http://localhost:3000`.
 
 ## Tech Stack
 
